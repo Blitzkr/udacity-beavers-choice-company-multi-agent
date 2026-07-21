@@ -840,26 +840,32 @@ _ITEM_CATALOGUE = ", ".join(f"'{s['item_name']}'" for s in paper_supplies)
 orchestrator_agent = Agent(
     MODEL,
     system_prompt=(
-        "You are the Operations Orchestrator for Munder Difflin Paper Company.\n\n"
-        "Follow this EXACT two-step workflow for EVERY customer request:\n\n"
-        "STEP 1 — Call check_availability.\n"
-        "  Parameters:\n"
-        "    customer_request = the full customer message\n"
-        "    request_date = date from '(Date of request: YYYY-MM-DD)' in the message\n\n"
-        "STEP 2 — Read the check_availability result:\n"
-        "  • can_fulfill = false → write a professional rejection and STOP.\n"
-        "    End with: ORDER STATUS: REJECTED\n"
-        "  • can_fulfill = true → call process_order EXACTLY ONCE:\n"
-        "      item_name = the recommended_item value (copy it exactly)\n"
-        "      quantity  = the suggested_quantity value (copy it exactly)\n"
-        "      request_date = same date as step 1\n\n"
-        "STEP 3 — After process_order returns, write a customer confirmation with:\n"
-        "  item name, quantity, unit price, discount %, order total, transaction ID.\n"
+        "You are the Operations Orchestrator for Munder Difflin Paper Company.\n"
+        "Coordinate three specialist agents — Inventory, Quoting, and Sales — for every request.\n\n"
+        "Follow this EXACT four-step workflow:\n\n"
+        "STEP 0 — Call check_availability(customer_request=<full text>, request_date=<YYYY-MM-DD>).\n"
+        "  Extract request_date from '(Date of request: YYYY-MM-DD)' in the message.\n"
+        "  This identifies the best in-stock item and the requested quantity.\n\n"
+        "STEP 1 — Read the result:\n"
+        "  • can_fulfill=false → write a professional rejection. Do NOT reveal exact stock numbers.\n"
+        "    Say 'insufficient stock to meet your requested quantity' or similar.\n"
+        "    End with: ORDER STATUS: REJECTED. STOP.\n"
+        "  • can_fulfill=true → proceed with recommended_item and suggested_quantity.\n\n"
+        "STEP 2 — Call delegate_to_quoting EXACTLY ONCE:\n"
+        "  'As of [request_date]: Quote for [recommended_item], quantity [suggested_quantity]'\n"
+        "  Use EXACTLY the recommended_item and suggested_quantity from check_availability.\n"
+        "  Do NOT call delegate_to_quoting for any other items or quantities.\n\n"
+        "STEP 3 — Call delegate_to_sales EXACTLY ONCE:\n"
+        "  'As of [request_date]: Finalize sale of [recommended_item], quantity [suggested_quantity],\n"
+        "   total $[AMOUNT from quoting step]'\n\n"
+        "STEP 4 — Write the customer confirmation. Include:\n"
+        "  item name, quantity, unit price, discount percentage, order total.\n"
+        "  Do NOT include: transaction IDs, internal reference numbers, or exact warehouse stock counts.\n"
         "  End with: ORDER STATUS: FULFILLED\n\n"
         "CRITICAL RULES:\n"
-        "  - Call check_availability ONCE. Call process_order at most ONCE.\n"
-        "  - Do NOT call any other tools.\n"
-        "  - Never invent prices, names, or transaction IDs.\n"
+        "  - Call each tool at most ONCE. Never call delegate_to_quoting or delegate_to_sales\n"
+        "    for items other than the recommended_item from check_availability.\n"
+        "  - Never reveal transaction IDs, internal order numbers, or exact stock tallies to the customer.\n"
         "  - End EVERY response with exactly 'ORDER STATUS: FULFILLED' or 'ORDER STATUS: REJECTED'."
     ),
 )
@@ -903,9 +909,9 @@ def check_availability(customer_request: str, request_date: str) -> str:
             "stock_available": int(best["stock"]),
             "suggested_quantity": suggested_qty,
             "message": (
-                f"Recommended: '{best['item_name']}' — {int(best['stock'])} units in stock. "
+                f"Recommended: '{best['item_name']}' — sufficient stock available. "
                 f"Customer wants {suggested_qty}. "
-                f"{'Fulfillable — proceed to process_order.' if can_fulfill else 'Insufficient stock — reject.'}"
+                f"{'Fulfillable — call delegate_to_quoting then delegate_to_sales.' if can_fulfill else 'Insufficient stock — reject without revealing exact counts.'}"
             ),
         })
     else:
@@ -917,59 +923,22 @@ def check_availability(customer_request: str, request_date: str) -> str:
 
 
 @orchestrator_agent.tool_plain
-def process_order(item_name: str, quantity: int, request_date: str) -> str:
-    """
-    Compute a price quote and finalize the sale in one step (no sub-agent needed).
-    Use the exact item_name returned by check_availability.
-    Returns pricing details and a transaction_id on success.
-    """
-    print(f"  [process_order] item='{item_name}' qty={quantity} date='{request_date}'", flush=True)
-    result = pd.read_sql(
-        "SELECT item_name, unit_price FROM inventory WHERE LOWER(item_name) = LOWER(:item_name)",
-        db_engine,
-        params={"item_name": item_name},
-    )
-    if result.empty:
-        available = pd.read_sql("SELECT item_name FROM inventory", db_engine)["item_name"].tolist()
-        return json.dumps({"success": False, "error": f"Item '{item_name}' not found. Available: {available}"})
-
-    canonical_name = result.iloc[0]["item_name"]
-    base_price = float(result.iloc[0]["unit_price"])
-    quoted_price, discount = _apply_bulk_discount(base_price, quantity)
-    total = round(quoted_price * quantity, 2)
-
-    try:
-        tx_id = create_transaction(canonical_name, "sales", quantity, total, request_date)
-        print(f"  [process_order] tx_id={tx_id} total=${total:.2f}", flush=True)
-        return json.dumps({
-            "success": True,
-            "transaction_id": tx_id,
-            "item_name": canonical_name,
-            "quantity": quantity,
-            "base_unit_price": base_price,
-            "discount_percent": round(discount * 100, 1),
-            "quoted_unit_price": quoted_price,
-            "order_total": total,
-            "date": request_date,
-        })
-    except Exception as exc:
-        return json.dumps({"success": False, "error": str(exc)})
-
-
 def delegate_to_inventory(query: str) -> str:
-    """Route a detailed inventory or delivery-timeline question to the Inventory Agent."""
+    """Forward a stock check or delivery-timeline question to the Inventory Agent."""
     print("  [-> inventory agent]", flush=True)
     return _run_in_thread(inventory_agent, query)
 
 
+@orchestrator_agent.tool_plain
 def delegate_to_quoting(query: str) -> str:
-    """Route a pricing request to the Quoting Agent."""
+    """Forward a pricing request to the Quoting Agent. Call this ONCE with the recommended item."""
     print("  [-> quoting agent]", flush=True)
     return _run_in_thread(quoting_agent, query)
 
 
+@orchestrator_agent.tool_plain
 def delegate_to_sales(query: str) -> str:
-    """Route an order-finalization request to the Sales Agent."""
+    """Forward an order-finalization request to the Sales Agent. Call this ONCE."""
     print("  [-> sales agent]", flush=True)
     return _run_in_thread(sales_agent, query)
 

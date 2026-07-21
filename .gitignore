@@ -1,0 +1,18 @@
+# API keys and secrets — never commit
+.env
+
+# Auto-generated SQLite database
+munder_difflin.db
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/

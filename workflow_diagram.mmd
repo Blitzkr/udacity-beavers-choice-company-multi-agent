@@ -1,0 +1,75 @@
+---
+title: Munder Difflin Paper Company — Multi-Agent System
+---
+flowchart TD
+
+    %% ── Entry & Exit ──────────────────────────────────────────────
+    CSV[("quote_requests_sample.csv\n20 free-text customer requests\ncolumns: job, need_size, event,\nrequest, request_date")]
+    EVAL["run_test_scenarios()\nLoads CSV → sorts by date\nAppends '(Date of request: YYYY-MM-DD)'\nto each request string"]
+    RESULTS[("test_results.csv\nrequest_id, request_date,\ncash_balance, inventory_value,\nresponse")]
+
+    %% ── Entry function ────────────────────────────────────────────
+    ENTRY["call_your_multi_agent_system(request)\nSingle entry point called per row"]
+
+    %% ── Agents ────────────────────────────────────────────────────
+    ORC["🎯 Orchestrator Agent\n─────────────────────────────\nParses request & date\nMaps natural language to exact\nDB item names via catalogue\nRoutes through full workflow:\n1 → inventory  2 → quoting  3 → sales\nEnds reply with ORDER STATUS line"]
+
+    INV["📦 Inventory Agent\n─────────────────────────────\nChecks specific item stock\nFetches full inventory list\nEstimates supplier delivery\ntimeline by order quantity"]
+
+    QUO["💰 Quoting Agent\n─────────────────────────────\nSearches historical quote DB\nfor pricing context\nComputes bulk-discounted quote:\n<100 → 0%  |  100+ → 5%\n500+ → 10%  |  1000+ → 15%"]
+
+    SAL["🤝 Sales Agent\n─────────────────────────────\nChecks cash balance pre-sale\nFinalizes transaction (type='sales')\nGenerates post-sale financial report\nConfirms order or reports rejection"]
+
+    %% ── Delegation tools (Orchestrator → Workers) ────────────────
+    DI["delegate_to_inventory(query)\n→ _run_in_thread(inventory_agent)\n  [thread isolation avoids\n   nested event-loop error]"]
+    DQ["delegate_to_quoting(query)\n→ _run_in_thread(quoting_agent)"]
+    DS["delegate_to_sales(query)\n→ _run_in_thread(sales_agent)"]
+
+    %% ── Inventory Agent tools ─────────────────────────────────────
+    T1["check_stock(item_name, request_date)\n→ get_stock_level(item_name, as_of_date)\nReturns: current_stock, in_stock flag"]
+    T2["get_full_inventory(request_date)\n→ get_all_inventory(as_of_date)\nReturns: {item_name: stock} dict"]
+    T3["check_delivery_timeline(request_date, quantity)\n→ get_supplier_delivery_date(date_str, qty)\n≤10 units=0d  ≤100=1d  ≤1000=4d  >1000=7d"]
+
+    %% ── Quoting Agent tools ───────────────────────────────────────
+    T4["lookup_quote_history(search_terms, limit)\n→ search_quote_history(terms, limit)\nJoins quotes + quote_requests tables"]
+    T5["compute_quote(item_name, quantity)\n→ pd.read_sql(inventory) + _apply_bulk_discount()\nReturns: base price, discount%, total"]
+
+    %% ── Sales Agent tools ─────────────────────────────────────────
+    T6["finalize_sale(item_name, qty, total, date)\n→ create_transaction(item, 'sales', qty, price, date)\nReturns: transaction_id"]
+    T7["check_cash_balance(request_date)\n→ get_cash_balance(as_of_date)\nSales − Stock_orders as of date"]
+    T8["run_financial_report(request_date)\n→ generate_financial_report(as_of_date)\nCash + inventory value + top sellers"]
+
+    %% ── SQLite Database (via SQLAlchemy) ──────────────────────────
+    DB[("SQLite: munder_difflin.db\n────────────────────────\ntable: inventory\n  item_name, unit_price,\n  current_stock, min_stock_level\ntable: transactions\n  item_name, transaction_type,\n  units, price, transaction_date\ntable: quotes\n  total_amount, quote_explanation,\n  job_type, order_size, event_type\ntable: quote_requests\n  response (original request text)")]
+
+    %% ── Flow ──────────────────────────────────────────────────────
+    CSV --> EVAL --> ENTRY --> ORC
+
+    ORC -->|"Step 1: verify stock\n& delivery"| DI --> INV
+    ORC -->|"Step 2: price quote\n(if in stock)"| DQ --> QUO
+    ORC -->|"Step 3: finalize\n(if quote approved)"| DS --> SAL
+
+    INV --> T1 & T2 & T3
+    QUO --> T4 & T5
+    SAL --> T6 & T7 & T8
+
+    T1 & T2 & T3 & T4 & T5 & T6 & T7 & T8 --> DB
+
+    ORC -->|"Full agent response\n+ ORDER STATUS: FULFILLED\nor ORDER STATUS: REJECTED"| RESULTS
+
+    %% ── Rejection decision ────────────────────────────────────────
+    REJ(["Reject if:\nItem not in inventory\nOR stock < requested qty"])
+    ORC -.->|"decision gate"| REJ
+
+    %% ── Styling ───────────────────────────────────────────────────
+    classDef agent  fill:#1e3a5f,color:#fff,stroke:#4a90d9,stroke-width:2px
+    classDef tool   fill:#1a4d1a,color:#fff,stroke:#5cb85c,stroke-width:1px
+    classDef store  fill:#4d3300,color:#fff,stroke:#f0a500,stroke-width:2px
+    classDef io     fill:#3d1a6e,color:#fff,stroke:#9b59b6,stroke-width:1px
+    classDef note   fill:#333,color:#ccc,stroke:#888,stroke-width:1px
+
+    class ORC,INV,QUO,SAL agent
+    class DI,DQ,DS,T1,T2,T3,T4,T5,T6,T7,T8 tool
+    class DB store
+    class CSV,RESULTS,EVAL,ENTRY io
+    class REJ note

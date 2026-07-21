@@ -1,0 +1,178 @@
+request_id,request_date,cash_balance,inventory_value,response
+1,2025-04-01,45078.7,4920.299999999999,"Your order has been successfully processed. Here are the details:
+
+- Item name: Colored paper
+- Quantity: 200 sheets
+- Unit price: $0.095
+- Discount: 5%
+- Order total: $19.00
+- Transaction ID: 20
+
+Thank you for your order! 
+
+ORDER STATUS: FULFILLED"
+2,2025-04-03,45528.7,4420.3,"Your order has been successfully processed. Here are the details:
+
+- Item Name: Large poster paper (24x36 inches)
+- Quantity: 500
+- Unit Price: $0.90
+- Discount: 10%
+- Order Total: $450.00
+- Transaction ID: 21
+
+Thank you for your order! 
+
+ORDER STATUS: FULFILLED"
+3,2025-04-04,45531.7,4417.3,"Your order has been successfully processed! Here are the details:
+
+- **Item Name:** Banner paper
+- **Quantity:** 10
+- **Unit Price:** $0.30
+- **Discount:** 0%
+- **Order Total:** $3.00
+- **Transaction ID:** 22
+
+Thank you for your order, and we look forward to serving you again!
+
+ORDER STATUS: FULFILLED"
+4,2025-04-05,45666.7,4267.3,"Your order has been successfully processed. Here are the details:
+
+- Item Name: Banner paper
+- Quantity: 500 sheets
+- Unit Price: $0.27
+- Discount: 10%
+- Order Total: $135.00
+- Transaction ID: 23
+
+Thank you for your order. 
+
+ORDER STATUS: FULFILLED"
+5,2025-04-05,45711.7,4217.3,"Your order has been successfully processed. Here are the details:
+
+- Item Name: Colored paper
+- Quantity: 500 sheets
+- Unit Price: $0.09
+- Discount: 10%
+- Order Total: $45.00
+- Transaction ID: 24
+
+Thank you for your order, and we hope your upcoming party is a great success!
+
+ORDER STATUS: FULFILLED"
+6,2025-04-06,45756.7,4167.3,"Your order has been successfully processed. Here are the details of your order:
+
+- Item Name: Paper plates
+- Quantity: 500
+- Unit Price: $0.09
+- Discount: 10%
+- Order Total: $45.00
+- Transaction ID: 25
+
+Thank you for choosing Munder Difflin Paper Company! 
+
+ORDER STATUS: FULFILLED"
+7,2025-04-07,45756.7,4167.3,"Unfortunately, we are unable to fulfill your order for the requested quantities of paper supplies. Specifically, we do not have enough stock of the 'Large poster paper (24x36 inches)' available to meet your needs. 
+
+ORDER STATUS: REJECTED"
+8,2025-04-07,45846.7,4067.2999999999997,"Your order for 500 sheets of Glossy paper has been successfully processed. Here are the details:
+
+- **Item Name:** Glossy paper
+- **Quantity:** 500 sheets
+- **Unit Price:** $0.18
+- **Discount:** 10%
+- **Order Total:** $90.00
+- **Transaction ID:** 26
+
+Thank you for your order!
+
+ORDER STATUS: FULFILLED"
+9,2025-04-07,45865.7,4047.2999999999997,"Your order has been successfully placed for 200 sheets of Kraft paper. Here are the details:
+
+- **Item Name:** Kraft paper
+- **Quantity:** 200
+- **Unit Price:** $0.095
+- **Discount:** 5%
+- **Order Total:** $19.00
+- **Transaction ID:** 27
+
+Thank you for choosing Munder Difflin Paper Company!
+
+ORDER STATUS: FULFILLED"
+13,2025-04-08,46090.7,3797.2999999999997,"Your order for 500 sheets of ""100 lb cover stock"" has been successfully processed. Here are the details of your order:
+
+- Item Name: 100 lb cover stock
+- Quantity: 500 sheets
+- Unit Price: $0.45
+- Discount: 10%
+- Order Total: $225.00
+- Transaction ID: 28
+
+Thank you for your order! 
+
+ORDER STATUS: FULFILLED"
+12,2025-04-08,46119.2,3767.2999999999997,"Your order for 200 sheets of Cardstock has been successfully processed. Here are the details of your order:
+
+- Item Name: Cardstock
+- Quantity: 200 sheets
+- Unit Price: $0.1425
+- Discount: 5%
+- Order Total: $28.50
+- Transaction ID: 29
+
+Thank you for choosing Munder Difflin Paper Company. If you have any more requests, feel free to ask!
+
+ORDER STATUS: FULFILLED"
+10,2025-04-08,46119.2,3767.2999999999997,"Unfortunately, we cannot fulfill your request for 500 sheets of high-quality glossy paper due to insufficient stock. We have only 87 units available. 
+
+ORDER STATUS: REJECTED"
+11,2025-04-08,46119.2,3767.2999999999997,"Thank you for your request. Unfortunately, we cannot fulfill your order for 500 sheets of A3 glossy paper as we have only 87 units in stock. We apologize for any inconvenience this may cause.
+
+ORDER STATUS: REJECTED"
+14,2025-04-09,46124.2,3762.2999999999997,"Your order has been successfully processed. Here are the details:
+
+- Item Name: Large poster paper (24x36 inches)
+- Quantity: 5
+- Unit Price: $1.00
+- Discount: 0%
+- Order Total: $5.00
+- Transaction ID: 30
+
+Thank you for your order! 
+
+ORDER STATUS: FULFILLED"
+15,2025-04-12,46134.2,3752.2999999999997,"Your order has been successfully processed. Here are the order details:
+
+- **Item Name:** Large poster paper (24x36 inches)
+- **Quantity:** 10
+- **Unit Price:** $1.00
+- **Discount:** 0%
+- **Order Total:** $10.00
+- **Transaction ID:** 31
+
+Thank you for choosing Munder Difflin Paper Company!
+
+ORDER STATUS: FULFILLED"
+16,2025-04-13,46134.2,3752.2999999999997,"I regret to inform you that we are unable to fulfill your order for the requested items due to insufficient stock. Specifically, we have only 184 units of the recommended item, ""Large poster paper (24x36 inches)"", available, while you require 500 sheets.
+
+ORDER STATUS: REJECTED"
+17,2025-04-14,46134.2,3752.2999999999997,"Thank you for your order request. Unfortunately, we are unable to fulfill your order as we currently have insufficient stock for one of the items you requested. 
+
+ORDER STATUS: REJECTED"
+18,2025-04-14,46134.2,3752.2999999999997,"Unfortunately, we are unable to fulfill your order as there is insufficient stock for the colored paper you requested. The recommended item is only available in a quantity of 88 sheets, while your request is for 500 sheets. 
+
+ORDER STATUS: REJECTED"
+19,2025-04-15,46134.2,3752.2999999999997,"Thank you for your request. Unfortunately, we currently do not have sufficient stock to fulfill your order for 2000 sheets of A4 glossy paper. We have only 87 units available at this time.
+
+ORDER STATUS: REJECTED"
+20,2025-04-17,46139.2,3747.2999999999997,"Your order has been successfully processed. Here are the details:
+
+- Item name: Large poster paper (24x36 inches)
+- Quantity: 5
+- Unit price: $1.00
+- Discount: 0%
+- Order total: $5.00
+- Transaction ID: 32
+
+Thank you for your order, and we look forward to serving you again!
+
+ORDER STATUS: FULFILLED"

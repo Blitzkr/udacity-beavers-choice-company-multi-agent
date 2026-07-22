@@ -621,6 +621,14 @@ MODEL = _PAIModel("gpt-4o-mini", provider=_provider)
 
 # ── Pricing Utility ──────────────────────────────────────────────────────────
 
+# Unit label per inventory category — used in customer-facing responses
+CATEGORY_UNITS = {
+    "paper":        "sheets",
+    "large_format": "sheets",
+    "specialty":    "sheets",
+    "product":      "units",
+}
+
 # Bulk discount tiers: (minimum_quantity, discount_fraction)
 DISCOUNT_TIERS = [
     (1000, 0.15),   # 1000+ units → 15% off
@@ -746,7 +754,7 @@ def compute_quote(item_name: str, quantity: int) -> str:
     """
     print(f"    [compute_quote] item='{item_name}' qty={quantity}", flush=True)
     result = pd.read_sql(
-        "SELECT item_name, unit_price FROM inventory WHERE LOWER(item_name) = LOWER(:item_name)",
+        "SELECT item_name, unit_price, category FROM inventory WHERE LOWER(item_name) = LOWER(:item_name)",
         db_engine,
         params={"item_name": item_name},
     )
@@ -756,6 +764,8 @@ def compute_quote(item_name: str, quantity: int) -> str:
             "error": f"Item '{item_name}' not found. Available items: {available}"
         })
     item_name = result.iloc[0]["item_name"]  # use canonical casing from DB
+    category  = result.iloc[0]["category"]
+    unit      = CATEGORY_UNITS.get(category, "units")
 
     base_price = float(result.iloc[0]["unit_price"])
     quoted_price, discount = _apply_bulk_discount(base_price, quantity)
@@ -764,6 +774,7 @@ def compute_quote(item_name: str, quantity: int) -> str:
     return json.dumps({
         "item_name": item_name,
         "quantity": quantity,
+        "unit": unit,
         "base_unit_price": base_price,
         "discount_percent": round(discount * 100, 1),
         "quoted_unit_price": quoted_price,
@@ -841,32 +852,37 @@ orchestrator_agent = Agent(
     MODEL,
     system_prompt=(
         "You are the Operations Orchestrator for Munder Difflin Paper Company.\n"
-        "Coordinate three specialist agents — Inventory, Quoting, and Sales — for every request.\n\n"
-        "Follow this EXACT four-step workflow:\n\n"
+        "Coordinate Inventory, Quoting, and Sales agents for every customer request.\n\n"
         "STEP 0 — Call check_availability(customer_request=<full text>, request_date=<YYYY-MM-DD>).\n"
-        "  Extract request_date from '(Date of request: YYYY-MM-DD)' in the message.\n"
-        "  This identifies the best in-stock item and the requested quantity.\n\n"
+        "  Extract request_date from '(Date of request: YYYY-MM-DD)' in the message.\n\n"
         "STEP 1 — Read the result:\n"
-        "  • can_fulfill=false → write a professional rejection. Do NOT reveal exact stock numbers.\n"
-        "    Say 'insufficient stock to meet your requested quantity' or similar.\n"
-        "    End with: ORDER STATUS: REJECTED. STOP.\n"
-        "  • can_fulfill=true → proceed with recommended_item and suggested_quantity.\n\n"
+        "  • can_fulfill=false → write a professional rejection. Do NOT reveal exact stock counts.\n"
+        "    Say 'insufficient stock' or 'we do not carry those items in stock at this time'.\n"
+        "    End with: ORDER STATUS: REJECTED. STOP — do NOT call any other tools.\n"
+        "  • can_fulfill=true → proceed to STEP 2.\n\n"
         "STEP 2 — Call delegate_to_quoting EXACTLY ONCE:\n"
         "  'As of [request_date]: Quote for [recommended_item], quantity [suggested_quantity]'\n"
-        "  Use EXACTLY the recommended_item and suggested_quantity from check_availability.\n"
-        "  Do NOT call delegate_to_quoting for any other items or quantities.\n\n"
+        "  Use EXACTLY recommended_item and suggested_quantity from check_availability.\n"
+        "  Do NOT call delegate_to_quoting for any other item or quantity.\n\n"
         "STEP 3 — Call delegate_to_sales EXACTLY ONCE:\n"
-        "  'As of [request_date]: Finalize sale of [recommended_item], quantity [suggested_quantity],\n"
-        "   total $[AMOUNT from quoting step]'\n\n"
+        "  'As of [request_date]: Finalize sale of [recommended_item],\n"
+        "   quantity [suggested_quantity], total $[AMOUNT from quoting step]'\n\n"
         "STEP 4 — Write the customer confirmation. Include:\n"
-        "  item name, quantity, unit price, discount percentage, order total.\n"
-        "  Do NOT include: transaction IDs, internal reference numbers, or exact warehouse stock counts.\n"
+        "  • Item name, quantity with the correct unit label from the quoting response\n"
+        "    (e.g. 'sheets' for paper, 'units' for plates/cups — never default to 'sheets' for all items)\n"
+        "  • Unit price, discount percentage, order total\n"
+        "  • If is_substitution=true: open with a substitution notice, for example:\n"
+        "    'We do not currently carry [describe what the customer asked for] in stock.\n"
+        "     As the closest available alternative, we are fulfilling your order with [recommended_item].'\n"
+        "  Do NOT include transaction IDs, internal reference numbers, or exact warehouse stock counts.\n"
         "  End with: ORDER STATUS: FULFILLED\n\n"
-        "CRITICAL RULES:\n"
-        "  - Call each tool at most ONCE. Never call delegate_to_quoting or delegate_to_sales\n"
-        "    for items other than the recommended_item from check_availability.\n"
-        "  - Never reveal transaction IDs, internal order numbers, or exact stock tallies to the customer.\n"
-        "  - End EVERY response with exactly 'ORDER STATUS: FULFILLED' or 'ORDER STATUS: REJECTED'."
+        "CRITICAL STATUS RULE — follow this exactly:\n"
+        "  • If you called delegate_to_sales → you MUST end with ORDER STATUS: FULFILLED.\n"
+        "  • Only end with ORDER STATUS: REJECTED if you did NOT call delegate_to_sales.\n"
+        "  • Never mix fulfillment details with a REJECTED status.\n"
+        "  • End EVERY response with exactly one of:\n"
+        "    ORDER STATUS: FULFILLED\n"
+        "    ORDER STATUS: REJECTED"
     ),
 )
 
@@ -874,8 +890,9 @@ orchestrator_agent = Agent(
 @orchestrator_agent.tool_plain
 def check_availability(customer_request: str, request_date: str) -> str:
     """
-    Find the best in-stock item that matches this customer request and extract the quantity.
-    Call this FIRST. Returns recommended_item, stock_available, suggested_quantity, and can_fulfill.
+    Find the best in-stock item for this request and detect whether it is a direct match
+    or a substitute. Call this FIRST.
+    Returns: recommended_item, suggested_quantity, can_fulfill, is_substitution.
     """
     print(f"  [check_availability] as of {request_date}", flush=True)
     inventory = get_all_inventory(request_date)
@@ -883,7 +900,7 @@ def check_availability(customer_request: str, request_date: str) -> str:
     if not inventory:
         return json.dumps({"can_fulfill": False, "message": "No items in stock."})
 
-    # Extract quantity from request text (strip date tag to avoid matching year digits)
+    # Strip date tag before extracting quantity so year digits don't interfere
     request_text = re.sub(r'\(Date of request:.*?\)', '', customer_request).strip()
     numbers = [int(n) for n in re.findall(r'\b(\d+)\b', request_text) if int(n) > 0]
     suggested_qty = numbers[0] if numbers else 100
@@ -891,27 +908,45 @@ def check_availability(customer_request: str, request_date: str) -> str:
     customer_lower = request_text.lower()
     matches = []
     for item_name, stock in inventory.items():
+        # Use min length 2 so short but specific tokens like "A4", "lb" are included
         keywords = [w for w in item_name.lower().replace("(", " ").replace(")", " ").split()
-                    if len(w) > 3]
+                    if len(w) >= 2]
         score = sum(1 for kw in keywords if kw in customer_lower)
         if score > 0:
-            matches.append({"item_name": item_name, "stock": stock, "score": score})
+            # Substitution: only the generic word "paper" matched — no item-specific keyword
+            specific_match = any(kw != "paper" and kw in customer_lower for kw in keywords)
+            matches.append({
+                "item_name": item_name,
+                "stock": stock,
+                "score": score,
+                "is_substitution": not specific_match,
+            })
 
     matches.sort(key=lambda x: (x["score"], x["stock"]), reverse=True)
 
     if matches:
         best = matches[0]
         can_fulfill = int(best["stock"]) >= suggested_qty
-        print(f"  [check_availability] best='{best['item_name']}' stock={best['stock']} qty={suggested_qty} ok={can_fulfill}", flush=True)
+        is_sub = best["is_substitution"]
+        print(
+            f"  [check_availability] best='{best['item_name']}' "
+            f"stock={best['stock']} qty={suggested_qty} ok={can_fulfill} sub={is_sub}",
+            flush=True,
+        )
+        action = (
+            "Substitute item — include substitution notice in FULFILLED response."
+            if is_sub else "Direct match."
+        )
         return json.dumps({
             "can_fulfill": can_fulfill,
+            "is_substitution": is_sub,
             "recommended_item": best["item_name"],
             "stock_available": int(best["stock"]),
             "suggested_quantity": suggested_qty,
             "message": (
-                f"Recommended: '{best['item_name']}' — sufficient stock available. "
-                f"Customer wants {suggested_qty}. "
-                f"{'Fulfillable — call delegate_to_quoting then delegate_to_sales.' if can_fulfill else 'Insufficient stock — reject without revealing exact counts.'}"
+                f"Recommended: '{best['item_name']}'. Customer wants {suggested_qty}. "
+                f"{action} "
+                f"{'Call delegate_to_quoting then delegate_to_sales.' if can_fulfill else 'Insufficient stock — reject.'}"
             ),
         })
     else:

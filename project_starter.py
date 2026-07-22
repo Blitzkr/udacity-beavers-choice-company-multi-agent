@@ -902,7 +902,9 @@ def check_availability(customer_request: str, request_date: str) -> str:
 
     # Strip date tag before extracting quantity so year digits don't interfere
     request_text = re.sub(r'\(Date of request:.*?\)', '', customer_request).strip()
-    numbers = [int(n) for n in re.findall(r'\b(\d+)\b', request_text) if int(n) > 0]
+    # Normalise comma-formatted numbers (e.g. "5,000" → "5000") before extraction
+    request_text_norm = re.sub(r'(\d),(\d{3})\b', r'\1\2', request_text)
+    numbers = [int(n) for n in re.findall(r'\b(\d+)\b', request_text_norm) if int(n) > 0]
     suggested_qty = numbers[0] if numbers else 100
 
     customer_lower = request_text.lower()
@@ -922,7 +924,8 @@ def check_availability(customer_request: str, request_date: str) -> str:
                 "is_substitution": not specific_match,
             })
 
-    matches.sort(key=lambda x: (x["score"], x["stock"]), reverse=True)
+    # Prefer: higher score > direct match (not a substitution) > higher stock
+    matches.sort(key=lambda x: (x["score"], not x["is_substitution"], x["stock"]), reverse=True)
 
     if matches:
         best = matches[0]

@@ -936,21 +936,25 @@ def check_availability(customer_request: str, request_date: str) -> str:
             f"stock={best['stock']} qty={suggested_qty} ok={can_fulfill} sub={is_sub}",
             flush=True,
         )
-        action = (
-            "Substitute item — include substitution notice in FULFILLED response."
-            if is_sub else "Direct match."
-        )
+        if can_fulfill:
+            sub_note = "Substitute item — include substitution notice. " if is_sub else "Direct match. "
+            msg = (
+                f"Recommended: '{best['item_name']}'. Customer wants {suggested_qty}. "
+                f"{sub_note}Call delegate_to_quoting then delegate_to_sales."
+            )
+        else:
+            # Do NOT name the item here — naming it causes the LLM to echo it in rejection text
+            msg = (
+                f"Insufficient stock to fulfill {suggested_qty} units. "
+                "Reject professionally. Do NOT mention any specific alternative item by name."
+            )
         return json.dumps({
             "can_fulfill": can_fulfill,
             "is_substitution": is_sub,
             "recommended_item": best["item_name"],
             "stock_available": int(best["stock"]),
             "suggested_quantity": suggested_qty,
-            "message": (
-                f"Recommended: '{best['item_name']}'. Customer wants {suggested_qty}. "
-                f"{action} "
-                f"{'Call delegate_to_quoting then delegate_to_sales.' if can_fulfill else 'Insufficient stock — reject.'}"
-            ),
+            "message": msg,
         })
     else:
         print("  [check_availability] no matching items", flush=True)

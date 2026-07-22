@@ -1,115 +1,119 @@
 request_id,request_date,cash_balance,inventory_value,response
-1,2025-04-01,45059.7,4940.299999999999,"We have successfully processed your request for paper supplies. 
-
-Here are the order details:
-
-- Item Name: Colored paper
-- Quantity: 200 sheets
-- Unit Price: $0.095 per sheet
-- Discount: 5%
-- Order Total: $19.00
-
-Thank you for your order, and please let me know if you need anything else!
-
-ORDER STATUS: FULFILLED"
-2,2025-04-03,45509.7,4440.3,"We do not currently carry colorful poster paper in stock. As the closest available alternative, we are fulfilling your order with Large poster paper (24x36 inches).
+1,2025-04-01,45078.7,4920.299999999999,"We do not currently carry 200 sheets of A4 glossy paper, 100 sheets of heavy cardstock (white) in stock. As the closest available alternative, we are fulfilling your order with colored paper.
 
 Here are the details of your order:
-- **Item Name**: Large poster paper (24x36 inches)
-- **Quantity**: 500 sheets
-- **Unit Price**: $0.90 (after a 10% discount)
-- **Order Total**: $450.00
 
-Thank you for your order! If you need anything else, feel free to reach out.
+- **Item Name:** Colored paper
+- **Quantity:** 200 sheets
+- **Unit Price:** $0.095 per sheet
+- **Discount Percentage:** 5%
+- **Order Total:** $19.00
+
+Thank you for your understanding, and if you have any further questions or need additional items, feel free to reach out!
 
 ORDER STATUS: FULFILLED"
-3,2025-04-04,45509.7,4440.3,"We do not currently carry 10,000 sheets of A4 paper, 5,000 sheets of A3 paper, or 500 reams of printer paper in stock at this time. Due to insufficient stock, we are unable to fulfill your order as requested.
+2,2025-04-03,45528.7,4420.3,"We do not currently carry colorful poster paper in stock. As the closest available alternative, we are fulfilling your order with **Large poster paper (24x36 inches)**.
+
+### Order Confirmation
+- **Item Name:** Large poster paper (24x36 inches)
+- **Quantity:** 500 sheets
+- **Unit Price:** $0.90
+- **Discount Applied:** 10%
+- **Order Total:** $450.00
+
+Thank you for your order! If you have any further questions or need assistance, feel free to reach out.
+
+ORDER STATUS: FULFILLED"
+3,2025-04-04,45528.7,4420.3,"Thank you for your request. Unfortunately, we do not carry those items in stock at this time. 
 
 ORDER STATUS: REJECTED"
-4,2025-04-05,46634.7,3190.2999999999997,"We do not currently carry high-quality, recycled cardstock in various colors in stock. As the closest available alternative, we are fulfilling your order with Rolls of banner paper (36-inch width). 
+4,2025-04-05,46653.7,3170.2999999999997,"We do not currently carry high-quality, recycled cardstock in various colors in stock. As the closest available alternative, we are fulfilling your order with Rolls of banner paper (36-inch width).
 
 Here are the details of your order:
+
 - **Item Name:** Rolls of banner paper (36-inch width)
-- **Quantity:** 500 rolls
-- **Unit Price:** $2.25
-- **Discount Applied:** 10%
+- **Quantity:** 500 units
+- **Unit Price:** $2.25 (after 10% discount)
 - **Order Total:** $1,125.00
 
-Thank you for your understanding, and please let us know if you need any further assistance.
+Thank you for your order! 
 
 ORDER STATUS: FULFILLED"
-5,2025-04-05,46634.7,3190.2999999999997,"Thank you for your order request. Unfortunately, we do not carry those items in stock at this time. 
+5,2025-04-05,46653.7,3170.2999999999997,"Thank you for your order request. Unfortunately, we do not carry those items in stock at this time due to insufficient stock. 
 
 ORDER STATUS: REJECTED"
-6,2025-04-06,46634.7,3190.2999999999997,"We do not currently carry colorful construction paper, white printer paper, or cardstock in stock at this time. As the closest available alternative, we are fulfilling your order with 500 rolls of banner paper (36-inch width).
+6,2025-04-06,46653.7,3170.2999999999997,"We do not carry those items in stock at this time. 
 
 ORDER STATUS: REJECTED"
-7,2025-04-07,46859.7,2940.2999999999997,"We do not currently carry the specific items you requested for your upcoming exhibition in stock. As the closest available alternative, we are fulfilling your order with **100 lb cover stock**. 
+7,2025-04-07,46878.7,2920.2999999999997,"We do not currently carry glossy A4 paper, matte A3 paper, poster boards (24"" x 36""), or heavyweight cardstock in stock. As the closest available alternative, we are fulfilling your order with 100 lb cover stock.
 
-**Order Details:**
-- **Item name:** 100 lb cover stock
+Here are the details of your order:
+
+- **Item Name:** 100 lb cover stock
 - **Quantity:** 500 sheets
-- **Unit price:** $0.45 per sheet
-- **Discount:** 10%
-- **Order total:** $225.00
+- **Unit Price:** $0.45 per sheet
+- **Discount Applied:** 10%
+- **Order Total:** $225.00
 
-Thank you for your order! If you have any further questions or need additional supplies, please feel free to reach out.
+Thank you for your order! If you need anything else or have further questions, feel free to reach out.
 
 ORDER STATUS: FULFILLED"
-8,2025-04-07,46904.7,2890.2999999999997,"We do not currently carry the items you requested in stock. As the closest available alternative, we are fulfilling your order with Colored paper. 
+8,2025-04-07,46923.7,2870.2999999999997,"Thank you for your order. 
+
+We do not currently carry the specific items you requested in stock. However, as the closest available alternative, we have fulfilled your order with **Colored paper**.
 
 Here are the details of your order:
 - **Item Name:** Colored paper
 - **Quantity:** 500 sheets
-- **Unit Price:** $0.09 per sheet
+- **Unit Price:** $0.09
 - **Discount Applied:** 10%
 - **Order Total:** $45.00
 
-Thank you for your order! If you have any further questions, feel free to ask.
+Your order has been successfully processed. 
 
 ORDER STATUS: FULFILLED"
-9,2025-04-07,46942.7,2850.2999999999993,"We do not currently carry your requested items in stock. As the closest available alternative, we are fulfilling your order with Glossy paper.
+9,2025-04-07,46961.7,2830.2999999999993,"We do not currently carry 200 sheets of A4 white printer paper, 100 sheets of A3 glossy paper, and 50 packets of 100% recycled kraft paper envelopes in stock. As the closest available alternative, we are fulfilling your order with 200 sheets of Glossy paper.
 
-**Order Details:**
-- Item Name: Glossy paper
-- Quantity: 200 sheets
-- Unit Price: $0.19
-- Discount Applied: 5%
-- Order Total: $38.00
+Here are the order details:
+- **Item Name**: Glossy paper
+- **Quantity**: 200 sheets
+- **Unit Price**: $0.19
+- **Discount Applied**: 5%
+- **Order Total**: $38.00
 
-Your order has been successfully processed. Thank you for choosing Munder Difflin Paper Company!
+Thank you for your order! 
 
 ORDER STATUS: FULFILLED"
-13,2025-04-08,46942.7,2850.2999999999993,"We do not carry those items in stock at this time. 
+13,2025-04-08,46961.7,2830.2999999999993,"We do not carry those items in stock at this time. 
 
 ORDER STATUS: REJECTED"
-12,2025-04-08,46942.7,2850.2999999999993,"We do not carry those items in stock at this time. 
+12,2025-04-08,46961.7,2830.2999999999993,"We do not carry those items in stock at this time. 
 
 ORDER STATUS: REJECTED"
-10,2025-04-08,46942.7,2850.2999999999993,"We do not carry those items in stock at this time. 
+10,2025-04-08,46961.7,2830.2999999999993,"Thank you for your inquiry. Unfortunately, we do not carry those items in stock at this time. 
 
 ORDER STATUS: REJECTED"
-11,2025-04-08,46942.7,2850.2999999999993,"We do not carry those items in stock at this time. 
+11,2025-04-08,46961.7,2830.2999999999993,"We do not carry those items in stock at this time. 
 
 ORDER STATUS: REJECTED"
-14,2025-04-09,46942.7,2850.2999999999993,"Thank you for your order request. Unfortunately, we do not carry those items in stock at this time. 
+14,2025-04-09,46961.7,2830.2999999999993,"We do not carry those items in stock at this time. 
 
 ORDER STATUS: REJECTED"
-15,2025-04-12,46942.7,2850.2999999999993,"Thank you for your inquiry regarding high-quality paper supplies. Unfortunately, we do not carry those items in stock at this time. 
+15,2025-04-12,46961.7,2830.2999999999993,"We do not carry those items in stock at this time. Unfortunately, we are unable to fulfill your order for high-quality paper supplies for your upcoming demonstration.
 
 ORDER STATUS: REJECTED"
-16,2025-04-13,46942.7,2850.2999999999993,"We do not carry those items in stock at this time. 
+16,2025-04-13,46961.7,2830.2999999999993,"Thank you for your order request. Unfortunately, we do not carry those items in stock at this time. 
 
 ORDER STATUS: REJECTED"
-17,2025-04-14,46942.7,2850.2999999999993,"We do not carry those items in stock at this time. 
+17,2025-04-14,46961.7,2830.2999999999993,"Thank you for your order request. Unfortunately, we do not carry those items in stock at this time. 
 
 ORDER STATUS: REJECTED"
-18,2025-04-14,46942.7,2850.2999999999993,"Thank you for your inquiry about the paper supplies for your upcoming ceremony. Unfortunately, we do not carry those items in stock at this time. 
+18,2025-04-14,46961.7,2830.2999999999993,"Thank you for your order request for paper supplies. Unfortunately, we do not carry those items in stock at this time. 
 
 ORDER STATUS: REJECTED"
-19,2025-04-15,46942.7,2850.2999999999993,"Unfortunately, we do not carry those items in stock at this time. Thank you for considering us for your paper supply needs, and we apologize for any inconvenience this may have caused.
+19,2025-04-15,46961.7,2830.2999999999993,"Thank you for your order request. Unfortunately, we do not carry those items in stock at this time. 
 
 ORDER STATUS: REJECTED"
-20,2025-04-17,46942.7,2850.2999999999993,"We do not carry those items in stock at this time. 
+20,2025-04-17,46961.7,2830.2999999999993,"Thank you for your request for paper supplies. Unfortunately, we do not carry those items in stock at this time. 
 
-ORDER STATUS: REJECTED"
+ORDER STATUS: REJECTED."
